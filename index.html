@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>English with Alice | Интерактивная платформа для 1–11 классов</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f6f2ff;
+            color: #1e1a2f;
+            line-height: 1.5;
+        }
+        :root {
+            --primary: #6c3cd4;
+            --primary-dark: #4a1d9e;
+            --primary-light: #e9e0ff;
+            --accent: #ff8c42;
+            --gray-border: #e2ddf5;
+            --shadow-sm: 0 8px 20px rgba(108, 60, 212, 0.08);
+            --card-radius: 28px;
+        }
+        .navbar {
+            background: white;
+            border-bottom: 1px solid var(--gray-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .logo {
+            font-weight: 800;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--primary), #9b6dff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .logo i { color: var(--primary); margin-right: 6px; }
+        .nav-links { display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center; }
+        .nav-links a {
+            font-weight: 500;
+            transition: 0.2s;
+            padding: 0.3rem 0;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            color: #2c2a3a;
+            text-decoration: none;
+        }
+        .nav-links a:hover, .nav-links a.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .saved-badge {
+            background: var(--primary-light);
+            border-radius: 40px;
+            padding: 0.2rem 1rem;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .search-wrapper {
+            display: flex;
+            align-items: center;
+            background: var(--primary-light);
+            border-radius: 60px;
+            padding: 0.4rem 0.8rem;
+            gap: 8px;
+        }
+        #globalSearch {
+            border: none;
+            background: transparent;
+            padding: 0.4rem;
+            width: 180px;
+            outline: none;
+            font-family: inherit;
+        }
+        .container { max-width: 1300px; margin: 2rem auto; padding: 0 2rem; }
+        .page { display: none; animation: fade 0.2s ease; }
+        .active-page { display: block; }
+        @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+        .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem; margin-top: 1.5rem; }
+        .card {
+            background: white;
+            border-radius: var(--card-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: 0.2s;
+            border: 1px solid var(--gray-border);
+        }
+        .card:hover { transform: translateY(-4px); }
+        .card h3 { font-size: 1.35rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .card-meta { display: flex; gap: 1rem; margin-top: 1rem; align-items: center; flex-wrap: wrap; }
+        .btn-outline {
+            background: var(--primary-light);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 40px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.2s;
+            color: var(--primary-dark);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-outline:hover { background: var(--primary); color: white; }
+        .like-btn, .save-btn {
+            background: transparent;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #a28ad6;
+            transition: 0.1s;
+            border: none;
+        }
+        .like-btn.liked { color: #e8415a; }
+        .save-btn.saved { color: var(--primary); }
+        .comments-section { margin-top: 1rem; border-top: 1px solid #eee; padding-top: 1rem; }
+        .comment-input { display: flex; gap: 10px; margin-top: 10px; }
+        .comment-input input { flex: 1; padding: 8px 14px; border-radius: 50px; border: 1px solid var(--gray-border); }
+        .comment-list { margin-top: 12px; font-size: 0.85rem; max-height: 150px; overflow-y: auto; }
+        .comment-item { background: #f7f4fe; margin: 6px 0; padding: 8px 12px; border-radius: 28px; }
+        .teacher-profile {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            background: white;
+            border-radius: var(--card-radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+        }
+        .teacher-avatar {
+            background: linear-gradient(145deg, #d9caff, #bda0ff);
+            width: 140px; height: 140px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+        }
+        .badge-list { display: flex; gap: 1rem; flex-wrap: wrap; margin: 1rem 0; }
+        .badge { background: var(--primary-light); padding: 0.3rem 1rem; border-radius: 40px; font-size: 0.8rem; }
+        .quiz-modal {
+            display: none;
+            position: fixed;
+            top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .quiz-content { background: white; max-width: 550px; width: 90%; border-radius: 2rem; padding: 2rem; max-height: 80vh; overflow: auto; }
+        footer { text-align: center; margin-top: 3rem; padding: 1.5rem; color: #7d6bab; border-top: 1px solid var(--gray-border); }
+        @media (max-width: 700px) { .nav-container { flex-direction: column; } .search-wrapper { width: 100%; } #globalSearch { width: 100%; } }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <div class="nav-container">
+        <div class="logo"><i class="fas fa-language"></i> English with Alice</div>
+        <div class="nav-links">
+            <a data-page="teacher" class="nav-link active">👩‍🏫 Учитель</a>
+            <a data-page="materials" class="nav-link">📚 Материалы</a>
+            <a data-page="events" class="nav-link">🎭 Мероприятия</a>
+            <a data-page="tasks" class="nav-link">✍️ Задания</a>
+            <a data-page="tests" class="nav-link">📝 Тесты</a>
+            <a data-page="saved" class="nav-link"><i class="fas fa-bookmark"></i> Сохранённое</a>
+        </div>
+        <div class="search-wrapper">
+            <i class="fas fa-search"></i>
+            <input type="text" id="globalSearch" placeholder="Поиск: Past Simple, лексика...">
+            <button class="search-btn" id="searchBtn"><i class="fas fa-arrow-right"></i></button>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Страница учителя английского -->
+    <div id="teacherPage" class="page active-page">
+        <div class="teacher-profile">
+            <div class="teacher-avatar"><i class="fas fa-chalkboard-user fa-3x"></i></div>
+            <div class="achievements">
+                <h2>Рыбкина Алиса Николаевна</h2>
+                <p>Учитель английского языка высшей категории, эксперт ЕГЭ, автор методических пособий. Работаю с 1 по 11 класс: игровые форматы, разговорные клубы, подготовка к олимпиадам.</p>
+                <div class="badge-list">
+                    <span class="badge">🏆 Лучший педагог цифровой среды 2025</span>
+                    <span class="badge">🎓 Автор курса «English booster»</span>
+                    <span class="badge">💬 Разговорный клуб "Speaking Lab"</span>
+                </div>
+                <p><i class="fas fa-envelope"></i> alice.english@eduflow.ru | <i class="fas fa-globe"></i> Более 500 учеников</p>
+                <p><strong>Мои наработки:</strong> интерактивные уроки, подкасты, викторины, вокабулярные карточки — всё для увлекательного изучения языка!</p>
+            </div>
+        </div>
+        <h3>⭐ Портфолио и достижения</h3>
+        <div class="grid-cards">
+            <div class="card"><h3><i class="fas fa-file-alt"></i> Авторские разработки</h3><p>Рабочие тетради, карточки Quizlet, mind maps для всех классов.</p><div class="card-meta"><i class="fas fa-download"></i> 310 скачиваний</div></div>
+            <div class="card"><h3><i class="fas fa-trophy"></i> Победы учеников</h3><p>Призёры ВсОШ по английскому, KET/PET сертификаты.</p><div class="card-meta"><i class="fas fa-medal"></i> 18 наград 2025-2026</div></div>
+            <div class="card"><h3><i class="fas fa-video"></i> Вебинары и курсы</h3><p>Авторский курс "Грамматика без слёз". Обновлено 10.04.2026</p></div>
+        </div>
+    </div>
+
+    <!-- Остальные страницы -->
+    <div id="materialsPage" class="page"><h2>📖 Учебные материалы по английскому</h2><div class="grid-cards" id="materialsList"></div></div>
+    <div id="eventsPage" class="page"><h2>🎉 Мероприятия и клубы</h2><div class="grid-cards" id="eventsList"></div></div>
+    <div id="tasksPage" class="page"><h2>✍️ Интерактивные задания</h2><div class="grid-cards" id="tasksList"></div></div>
+    <div id="testsPage" class="page"><h2>📝 Тесты и квизы (1-11 класс)</h2><div class="grid-cards" id="testsList"></div></div>
+    <div id="savedPage" class="page"><h2>🔖 Сохранённые материалы</h2><div id="savedContainer" class="grid-cards">Здесь будут посты, которые вы сохранили 💜</div></div>
+</div>
+
+<div id="quizModal" class="quiz-modal"><div class="quiz-content"><h3 id="quizTitle">Тест</h3><div id="quizBody"></div><button class="btn-outline" id="closeQuiz">Закрыть</button></div></div>
+<footer><i class="fas fa-heart" style="color:var(--primary);"></i> English with Alice | Живое сообщество, комментарии, лайки и сохранёнки</footer>
+
+<script>
+    // ---------- КОНТЕНТ ДЛЯ УЧИТЕЛЯ АНГЛИЙСКОГО, 1-11 классы ----------
+    const materialsData = [
+        { id: "mat1", title: "📘 Irregular Verbs Visual Cards", desc: "Неправильные глаголы с картинками и аудио (pdf + интерактив)", theme: "verbs", grade: "1-11", linkedTestId: "t_irregular", fakeLikes: 47, fakeComments: ["Очень наглядно, спасибо! – Елена, 05.04", "Мои 5-классники в восторге – Юлия"] },
+        { id: "mat2", title: "🎧 Подкаст: 'Daily Routines'", desc: "Аудио + транскрипция для уровней A1-A2", theme: "listening", grade: "2-5", linkedTestId: "t_routines", fakeLikes: 32, fakeComments: ["Отличное произношение, детям нравится слушать"] },
+        { id: "mat3", title: "📖 Текст 'My Family' с заданиями", desc: "Чтение + true/false упражнения для 3-4 класса", theme: "reading", grade: "3-4", linkedTestId: null, fakeLikes: 28, fakeComments: ["Полезно для отработки лексики – Анна"] },
+        { id: "mat4", title: "🎬 Видеоурок: Present Perfect", desc: "Правила, таймлайны, упражнения (6-9 класс)", theme: "grammar", grade: "6-9", linkedTestId: "t_presentperfect", fakeLikes: 63, fakeComments: ["Наконец-то поняла эту тему! – Дарья, 7 класс"] }
+    ];
+    const eventsData = [
+        { id: "ev1", title: "🗣️ Speaking Club 'Let's Talk!'", desc: "Каждую среду в 17:00, разговорный клуб для 5-8 классов", theme: "speaking", fakeLikes: 78, fakeComments: ["Очень ждём встречи! – Родители", "Участвовали, крутая атмосфера"] },
+        { id: "ev2", title: "🏆 Олимпиада по английскому (школьный тур)", desc: "Даты: 20-25 апреля 2026. Задания для 2-11 классов", theme: "olympiad", fakeLikes: 54, fakeComments: ["Уже зарегистрировались, готовимся!"] },
+        { id: "ev3", title: "🎭 Театральная постановка на английском 'Cinderella'", desc: "Репетиции, запись ролей. Для 1-4 классов", theme: "drama", fakeLikes: 41, fakeComments: ["Мои первоклашки хотят участвовать"] }
+    ];
+    const tasksData = [
+        { id: "task1", title: "📝 Написать эссе 'My ideal school'", desc: "7-11 класс, 150-200 слов. Чек-лист в приложении", theme: "writing", fakeLikes: 36, fakeComments: ["Интересная тема, уже пишем"] },
+        { id: "task2", title: "🧩 Составить mind map на тему 'Environment'", desc: "Собрать лексику, устойчивые выражения", theme: "vocabulary", fakeLikes: 29, fakeComments: ["Классно развивает креативность"] },
+        { id: "task3", title: "🎤 Записать аудио-рассказ о хобби (1-2 мин)", desc: "Для 3-6 классов, отработать произношение", theme: "speaking", fakeLikes: 44, fakeComments: ["Детям понравилось, шлют голосовые"] }
+    ];
+    const testsData = [
+        { id: "t_irregular", title: "Неправильные глаголы (базовый)", questions: ["Форма Past Simple от 'go'?", "Past Simple 'eat'?"], answers: ["went", "ate"], theme: "verbs", grade: "4-8", fakeLikes: 85, fakeComments: ["Отлично запоминается в виде квиза"] },
+        { id: "t_routines", title: "Daily Routine (лексика)", questions: ["Перевод: 'просыпаться'?", "What's 'завтракать'?"], answers: ["wake up", "have breakfast"], theme: "daily", fakeLikes: 52, fakeComments: ["Легко и полезно для младших"] },
+        { id: "t_presentperfect", title: "Present Perfect или Past Simple?", questions: ["I ____ (see) this film yesterday.", "She ____ (never/be) to London."], answers: ["saw", "has never been"], theme: "grammar", fakeLikes: 97, fakeComments: ["Очень нужный тест!"] }
+    ];
+
+    // Хранилища
+    let likes = JSON.parse(localStorage.getItem("eng_likes")) || {};
+    let savesSet = JSON.parse(localStorage.getItem("eng_saved")) || [];
+    let comments = JSON.parse(localStorage.getItem("eng_comments")) || {};
+
+    function initFake() {
+        const all = [...materialsData.map(m=>({id:`mat_${m.id}`, likes:m.fakeLikes, comms:m.fakeComments})),
+                     ...eventsData.map(e=>({id:`ev_${e.id}`, likes:e.fakeLikes, comms:e.fakeComments})),
+                     ...tasksData.map(t=>({id:`task_${t.id}`, likes:t.fakeLikes, comms:t.fakeComments})),
+                     ...testsData.map(t=>({id:`test_${t.id}`, likes:t.fakeLikes, comms:t.fakeComments}))];
+        all.forEach(item => {
+            if (!(item.id in likes)) likes[item.id] = false;
+            if (!comments[item.id] && item.comms) {
+                comments[item.id] = item.comms.map(txt => ({ text: txt, date: "Апрель 2026" }));
+            }
+        });
+        saveAll();
+    }
+
+    function saveAll() {
+        localStorage.setItem("eng_likes", JSON.stringify(likes));
+        localStorage.setItem("eng_saved", JSON.stringify(savesSet));
+        localStorage.setItem("eng_comments", JSON.stringify(comments));
+    }
+
+    function getLikeCount(itemId, fakeBase) {
+        let userLiked = likes[itemId] === true ? 1 : 0;
+        return fakeBase + userLiked;
+    }
+
+    function renderCard(item, type, fakeLikes, linkedTestId = null) {
+        const itemId = `${type}_${item.id}`;
+        const isLiked = likes[itemId] === true;
+        const isSaved = savesSet.includes(itemId);
+        const likeCount = getLikeCount(itemId, fakeLikes);
+        const testBtn = linkedTestId ? `<button class="btn-outline go-test-detail" data-test-id="${linkedTestId}"><i class="fas fa-question-circle"></i> Пройти тест</button>` : '';
+        return `
+            <div class="card" data-item-id="${itemId}" data-theme="${item.theme || ''}">
+                <h3>${item.title} <span style="font-size:0.7rem; background:#f0eefa; padding:2px 8px; border-radius:20px;">${item.grade || ''}</span></h3>
+                <p>${item.desc}</p>
+                <div class="card-meta">
+                    <button class="like-btn" data-id="${itemId}">${isLiked ? '<i class="fas fa-heart"></i>' : '<i class="far fa-heart"></i>'}</button>
+                    <span class="like-counter" data-id="${itemId}">❤️ ${likeCount}</span>
+                    <button class="save-btn" data-id="${itemId}">${isSaved ? '<i class="fas fa-bookmark"></i>' : '<i class="far fa-bookmark"></i>'}</button>
+                    ${testBtn}
+                </div>
+                <div class="comments-section">
+                    <div class="comment-list" id="commentList-${itemId}"></div>
+                    <div class="comment-input">
+                        <input type="text" placeholder="Написать комментарий..." class="comment-field" data-id="${itemId}">
+                        <button class="btn-outline comment-submit" data-id="${itemId}">Отправить</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderAll() {
+        document.getElementById("materialsList").innerHTML = materialsData.map(m => renderCard(m, "mat", m.fakeLikes, m.linkedTestId)).join('');
+        document.getElementById("eventsList").innerHTML = eventsData.map(e => renderCard(e, "ev", e.fakeLikes, null)).join('');
+        document.getElementById("tasksList").innerHTML = tasksData.map(t => renderCard(t, "task", t.fakeLikes, null)).join('');
+        document.getElementById("testsList").innerHTML = testsData.map(t => renderCard(t, "test", t.fakeLikes, t.id)).join('');
+        attachCardEvents();
+        renderAllComments();
+    }
+
+    function renderAllComments() {
+        const allIds = [...materialsData.map(m=>`mat_${m.id}`), ...eventsData.map(e=>`ev_${e.id}`), ...tasksData.map(t=>`task_${t.id}`), ...testsData.map(t=>`test_${t.id}`)];
+        allIds.forEach(id => {
+            const container = document.getElementById(`commentList-${id}`);
+            if(container) {
+                const comms = comments[id] || [];
+                container.innerHTML = comms.map(c => `<div class="comment-item"><i class="fas fa-comment"></i> ${escapeHtml(c.text)} <small>(${c.date})</small></div>`).join('');
+                if(comms.length === 0) container.innerHTML = '<div class="comment-item">Будьте первым, кто оставит отзыв ✨</div>';
+            }
+        });
+    }
+
+    function attachCardEvents() {
+        document.querySelectorAll('.like-btn').forEach(btn => {
+            btn.removeEventListener('click', likeHandler);
+            btn.addEventListener('click', likeHandler);
+        });
+        document.querySelectorAll('.save-btn').forEach(btn => {
+            btn.removeEventListener('click', saveHandler);
+            btn.addEventListener('click', saveHandler);
+        });
+        document.querySelectorAll('.go-test-detail').forEach(btn => {
+            btn.removeEventListener('click', testDetailHandler);
+            btn.addEventListener('click', testDetailHandler);
+        });
+        document.querySelectorAll('.comment-submit').forEach(btn => {
+            btn.removeEventListener('click', commentSubmitHandler);
+            btn.addEventListener('click', commentSubmitHandler);
+        });
+    }
+
+    function likeHandler(e) {
+        e.stopPropagation();
+        const btn = e.currentTarget;
+        const id = btn.dataset.id;
+        if (!id) return;
+        const wasLiked = likes[id] === true;
+        likes[id] = !wasLiked;
+        saveAll();
+        const counterSpan = document.querySelector(`.like-counter[data-id="${id}"]`);
+        if (counterSpan) {
+            let current = parseInt(counterSpan.innerText.replace('❤️','').trim());
+            const delta = wasLiked ? -1 : 1;
+            counterSpan.innerText = `❤️ ${current + delta}`;
+        }
+        btn.innerHTML = !wasLiked ? '<i class="fas fa-heart"></i>' : '<i class="far fa-heart"></i>';
+        if(!wasLiked) btn.classList.add("liked"); else btn.classList.remove("liked");
+    }
+
+    function saveHandler(e) {
+        const btn = e.currentTarget;
+        const id = btn.dataset.id;
+        const index = savesSet.indexOf(id);
+        if (index === -1) {
+            savesSet.push(id);
+            btn.innerHTML = '<i class="fas fa-bookmark"></i>';
+            btn.classList.add("saved");
+        } else {
+            savesSet.splice(index, 1);
+            btn.innerHTML = '<i class="far fa-bookmark"></i>';
+            btn.classList.remove("saved");
+        }
+        saveAll();
+        if (document.getElementById("savedPage").classList.contains("active-page")) renderSavedPage();
+    }
+
+    function commentSubmitHandler(e) {
+        const btn = e.currentTarget;
+        const parentCard = btn.closest('.card');
+        const itemId = btn.dataset.id || parentCard?.dataset.itemId;
+        if(!itemId) return;
+        const inputField = parentCard.querySelector('.comment-field');
+        if(inputField && inputField.value.trim()) {
+            if(!comments[itemId]) comments[itemId] = [];
+            comments[itemId].push({ text: inputField.value.trim(), date: new Date().toLocaleString() });
+            saveAll();
+            const listContainer = document.getElementById(`commentList-${itemId}`);
+            if(listContainer) renderCommentList(itemId, listContainer);
+            inputField.value = "";
+        }
+    }
+    function renderCommentList(itemId, container) {
+        const comms = comments[itemId] || [];
+        container.innerHTML = comms.map(c => `<div class="comment-item"><i class="fas fa-comment"></i> ${escapeHtml(c.text)} <small>(${c.date})</small></div>`).join('');
+        if(comms.length === 0) container.innerHTML = '<div class="comment-item">Будьте первым ✨</div>';
+    }
+    function escapeHtml(s) { return s.replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+
+    function testDetailHandler(e) {
+        const testId = e.currentTarget.dataset.testId;
+        const test = testsData.find(t => t.id === testId);
+        if(test) openTestModal(test);
+    }
+
+    function openTestModal(test) {
+        document.getElementById("quizTitle").innerText = test.title;
+        let qHtml = test.questions.map((q, idx) => `<p><strong>${idx+1}. ${q}</strong><br><input type="text" placeholder="Ваш ответ..." class="quiz-answer-input" style="width:100%; margin-top:6px;"></p>`).join('');
+        qHtml += `<button id="submitSpecialQuiz" class="btn-outline">Проверить</button><div id="quizResultArea"></div>`;
+        document.getElementById("quizBody").innerHTML = qHtml;
+        document.getElementById("quizModal").style.display = "flex";
+        document.getElementById("submitSpecialQuiz").onclick = () => {
+            let inputs = document.querySelectorAll('.quiz-answer-input');
+            let correctCount = 0;
+            inputs.forEach((inp, i) => { if(inp.value.trim().toLowerCase() === test.answers[i]?.toLowerCase()) correctCount++; });
+            document.getElementById("quizResultArea").innerHTML = `<div class="badge">✅ Правильных: ${correctCount} / ${test.questions.length}</div>`;
+        };
+    }
+
+    function renderSavedPage() {
+        const savedContainer = document.getElementById("savedContainer");
+        if (!savedContainer) return;
+        if (savesSet.length === 0) { savedContainer.innerHTML = `<div class="card">📭 Пока нет сохранённых материалов. Нажмите на <i class="far fa-bookmark"></i> у любого поста, чтобы добавить.</div>`; return; }
+        let allItems = [
+            ...materialsData.map(m => ({ ...m, type: "mat", renderType: "material", fakeLikes: m.fakeLikes, linkedTestId: m.linkedTestId })),
+            ...eventsData.map(e => ({ ...e, type: "ev", renderType: "event", fakeLikes: e.fakeLikes })),
+            ...tasksData.map(t => ({ ...t, type: "task", renderType: "task", fakeLikes: t.fakeLikes })),
+            ...testsData.map(t => ({ ...t, type: "test", renderType: "test", fakeLikes: t.fakeLikes, linkedTestId: t.id }))
+        ];
+        let savedCards = allItems.filter(item => savesSet.includes(`${item.type}_${item.id}`));
+        savedContainer.innerHTML = savedCards.map(item => renderCard(item, item.type, item.fakeLikes, item.linkedTestId || null)).join('');
+        attachCardEvents();
+        savedContainer.querySelectorAll('.comment-submit').forEach(btn => btn.addEventListener('click', commentSubmitHandler));
+        savedContainer.querySelectorAll('.like-btn').forEach(btn => btn.addEventListener('click', likeHandler));
+        savedContainer.querySelectorAll('.save-btn').forEach(btn => btn.addEventListener('click', saveHandler));
+        savedContainer.querySelectorAll('.go-test-detail').forEach(btn => btn.addEventListener('click', testDetailHandler));
+        allItems.forEach(item => { const id = `${item.type}_${item.id}`; const cont = document.getElementById(`commentList-${id}`); if(cont) renderCommentList(id, cont); });
+    }
+
+    // навигация
+    function navigate(page) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+        document.getElementById(`${page}Page`).classList.add('active-page');
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        document.querySelector(`.nav-link[data-page="${page}"]`).classList.add('active');
+        if(page === 'saved') renderSavedPage();
+        else {
+            let val = document.getElementById("globalSearch").value;
+            if(val) performSearch(val); else showAllCards();
+        }
+    }
+    function performSearch(q) {
+        if(!q.trim()) { showAllCards(); return; }
+        let lower = q.toLowerCase();
+        document.querySelectorAll('.card').forEach(card => {
+            let title = card.querySelector('h3')?.innerText.toLowerCase() || '';
+            let desc = card.querySelector('p')?.innerText.toLowerCase() || '';
+            let theme = card.dataset.theme?.toLowerCase() || '';
+            card.style.display = (title.includes(lower) || desc.includes(lower) || theme.includes(lower)) ? '' : 'none';
+        });
+    }
+    function showAllCards() { document.querySelectorAll('.card').forEach(c => c.style.display = ''); }
+
+    document.querySelectorAll('.nav-link').forEach(link => { link.addEventListener('click', (e) => { e.preventDefault(); navigate(link.dataset.page); }); });
+    document.getElementById("searchBtn").addEventListener('click', () => { performSearch(document.getElementById("globalSearch").value); });
+    document.getElementById("globalSearch").addEventListener('keyup', (e) => { if(e.key === 'Enter') performSearch(e.target.value); });
+    document.getElementById("closeQuiz").onclick = () => { document.getElementById("quizModal").style.display = "none"; };
+    window.onclick = (e) => { if(e.target === document.getElementById("quizModal")) document.getElementById("quizModal").style.display = "none"; };
+
+    initFake();
+    renderAll();
+</script>
+</body>
+</html>
